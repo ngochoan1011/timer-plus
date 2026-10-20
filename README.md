@@ -19,9 +19,18 @@ python3 -m http.server 8000
 # open http://localhost:8000
 ```
 
+## Deploy to Vercel
+
+No build step is needed; `vercel.json` sets the caching headers.
+
+- **From the dashboard:** vercel.com → **Add New… → Project** → import this GitHub repo → keep Framework Preset **Other** with no build command → **Deploy**. Every push to `main` then redeploys automatically.
+- **From the command line:** `npx vercel --prod` in this folder.
+
 ## Install on iPhone
 
-The app has to be served over HTTPS (GitHub Pages works):
+The app has to be served over HTTPS (Vercel or GitHub Pages):
+
+For GitHub Pages instead of Vercel:
 
 1. In the repo settings, open **Pages** and set **Source** to **GitHub Actions**.
 2. Push to `main`; the workflow in `.github/workflows/pages.yml` publishes the site.
