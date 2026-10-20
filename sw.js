@@ -1,5 +1,5 @@
 // Offline support: serve app files from cache, refresh them in the background.
-const CACHE = 'timerplus-v2';
+const CACHE = 'timerplus-v3';
 const ASSETS = [
   './',
   'index.html',

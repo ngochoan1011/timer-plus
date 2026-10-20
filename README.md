@@ -14,13 +14,13 @@ A workout timer Progressive Web App (PWA) for iPhone: **Tabata**, **Rounds** (bo
 
 ## ElevenLabs voice (Jessica)
 
-The spoken cues can use pre-recorded clips from ElevenLabs instead of the phone's built-in voice:
+The spoken cues are pre-recorded with the ElevenLabs **Jessica** voice (`audio/voice/`, 36 clips). Phrases without a clip (for example rounds above 20) use the device voice. To re-record them with the API:
 
 ```sh
 ELEVENLABS_API_KEY=your-key node scripts/generate-voice.mjs
 ```
 
-This records every phrase in `js/voice-phrases.js` with the **Jessica** voice into `audio/voice/` (set `ELEVENLABS_VOICE` to use another voice). Commit the files, bump `CACHE` in `sw.js`, and deploy. "Jessica" then appears first in Settings → Voice and is used by default. Phrases without a clip fall back to the device voice.
+This records every phrase in `js/voice-phrases.js` into `audio/voice/` (set `ELEVENLABS_VOICE` to use another voice). Commit the files, bump `CACHE` in `sw.js`, and deploy.
 
 ## Run locally
 
