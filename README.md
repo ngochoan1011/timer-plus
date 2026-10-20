@@ -14,7 +14,7 @@ A workout timer Progressive Web App (PWA) for iPhone: **Tabata**, **Rounds** (bo
 
 ## ElevenLabs voice (Jessica)
 
-The spoken cues are pre-recorded with the ElevenLabs **Jessica** voice (`audio/voice/`, 36 clips). Phrases without a clip (for example rounds above 20) use the device voice. To re-record them with the API:
+The spoken cues are pre-recorded with the ElevenLabs **Jessica** voice (`audio/voice/`, 46 clips). Phrases without a clip (for example rounds above 30) use the device voice. To re-record them with the API:
 
 ```sh
 ELEVENLABS_API_KEY=your-key node scripts/generate-voice.mjs

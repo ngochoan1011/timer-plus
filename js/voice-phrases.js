@@ -1,6 +1,6 @@
 // Every phrase the app speaks. Used by the app and by scripts/generate-voice.mjs
 // to pre-record them with an ElevenLabs voice.
-const rounds = Array.from({ length: 20 }, (_, i) => `Round ${i + 1}`);
+const rounds = Array.from({ length: 30 }, (_, i) => `Round ${i + 1}`);
 const warnings = [5, 10, 15, 20, 30].map((s) => `${s} seconds`);
 
 export const VOICE_PHRASES = [
