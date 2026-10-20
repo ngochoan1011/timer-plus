@@ -28,13 +28,9 @@ No build step is needed; `vercel.json` sets the caching headers.
 
 ## Install on iPhone
 
-The app has to be served over HTTPS (Vercel or GitHub Pages):
+The app has to be served over HTTPS (for example on Vercel), then:
 
-For GitHub Pages instead of Vercel:
-
-1. In the repo settings, open **Pages** and set **Source** to **GitHub Actions**.
-2. Push to `main`; the workflow in `.github/workflows/pages.yml` publishes the site.
-3. Open the site in **Safari** on the iPhone → **Share** → **Add to Home Screen**.
+1. Open the site in **Safari** on the iPhone → **Share** → **Add to Home Screen**.
 
 ## iPhone limits
 
