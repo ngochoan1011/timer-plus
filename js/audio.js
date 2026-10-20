@@ -172,11 +172,61 @@ export function applyAudioSession() {
   }
 }
 
+// ---------- Pre-recorded voice clips (ElevenLabs) ----------
+export const ELEVEN_VOICE = 'eleven';
+
+export const clips = {
+  manifest: null,
+  buffers: new Map(),
+  current: null,
+  preloading: null,
+  ready: fetch('audio/voice/manifest.json')
+    .then((r) => (r.ok ? r.json() : null))
+    .then((m) => { clips.manifest = m && m.clips ? m : null; return clips.manifest; })
+    .catch(() => null),
+
+  get name() { return this.manifest?.voice || 'ElevenLabs'; },
+
+  // Fetch and decode every clip once audio is unlocked.
+  preload() {
+    if (this.preloading) return this.preloading;
+    this.preloading = this.ready.then((m) => {
+      const ctx = sound.ensure();
+      if (!m || !ctx) { this.preloading = null; return; }
+      return Promise.all(Object.entries(m.clips).map(async ([text, file]) => {
+        try {
+          const res = await fetch(`audio/voice/${file}`);
+          const data = await res.arrayBuffer();
+          const buf = await ctx.decodeAudioData(data);
+          this.buffers.set(text.toLowerCase(), buf);
+        } catch { /* missing clip: device voice is used instead */ }
+      }));
+    });
+    return this.preloading;
+  },
+
+  play(text) {
+    const buf = this.buffers.get(String(text).toLowerCase());
+    const ctx = sound.ctx;
+    if (!buf || !ctx) return false;
+    try { this.current?.stop(); } catch { /* already stopped */ }
+    const src = ctx.createBufferSource();
+    const g = ctx.createGain();
+    g.gain.value = Math.min(1.4, 0.5 + settings.volume);
+    src.buffer = buf;
+    src.connect(g);
+    g.connect(ctx.destination);
+    src.start();
+    this.current = src;
+    return true;
+  },
+};
+
 // ---------- Voice ----------
 const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
 
 export const voice = {
-  supported: !!synth,
+  get supported() { return !!synth || !!clips.manifest; },
   list: [],
 
   load() {
@@ -201,7 +251,12 @@ export const voice = {
   },
 
   speak(text, { force = false } = {}) {
-    if (!synth || (!settings.voice && !force)) return;
+    if (!settings.voice && !force) return;
+    if (settings.voiceURI === ELEVEN_VOICE) {
+      if (synth) synth.cancel();
+      if (clips.play(text)) return;
+    }
+    if (!synth) return;
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
     const v = this.current();

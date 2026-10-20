@@ -7,7 +7,7 @@ export const DEFAULT_SETTINGS = {
   scheme: 'gong',
   volume: 0.8,
   voice: true,
-  voiceURI: '',
+  voiceURI: 'eleven',
   ducking: true,
   ticking: false,
   countdown: true,

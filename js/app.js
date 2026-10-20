@@ -1,5 +1,5 @@
 import { settings, setSetting, onSettingsChange, resetSettings, loadJSON, saveJSON } from './settings.js';
-import { sound, voice, SCHEMES, applyAudioSession } from './audio.js';
+import { sound, voice, clips, ELEVEN_VOICE, SCHEMES, applyAudioSession } from './audio.js';
 import { toast, wakeLock } from './effects.js';
 import { ICONS, h, escapeHTML, openSheet } from './ui.js';
 import { IntervalTimer } from './interval.js';
@@ -60,6 +60,7 @@ document.addEventListener('visibilitychange', () => {
 const unlockOnce = () => {
   sound.unlock();
   voice.unlock();
+  clips.preload();
   window.removeEventListener('pointerdown', unlockOnce);
 };
 window.addEventListener('pointerdown', unlockOnce);
@@ -151,9 +152,15 @@ function openSettings() {
 
   body.appendChild(toggleRow('voice', 'Voice assist', voice.supported ? '' : 'Not supported on this device'));
   const voices = voice.load();
-  if (voices.length) {
-    const opts = [['', 'Default'], ...voices.map((v) => [v.voiceURI, v.name])];
-    body.appendChild(selectRow('voiceURI', 'Voice', opts, () => {
+  if (voices.length || clips.manifest) {
+    const opts = [
+      ...(clips.manifest ? [[ELEVEN_VOICE, clips.name]] : []),
+      ['', 'Default'],
+      ...voices.map((v) => [v.voiceURI, v.name]),
+    ];
+    body.appendChild(selectRow('voiceURI', 'Voice', opts, async () => {
+      sound.unlock();
+      await clips.preload();
       voice.speak('Work', { force: true });
     }));
   }

@@ -12,6 +12,16 @@ A workout timer Progressive Web App (PWA) for iPhone: **Tabata**, **Rounds** (bo
 - Screen flash, keep screen on, pale colors, time format (00:00, 0:00, seconds), landscape layout.
 - Timers are based on timestamps, so they stay accurate and survive the app being closed or reopened.
 
+## ElevenLabs voice (Jessica)
+
+The spoken cues can use pre-recorded clips from ElevenLabs instead of the phone's built-in voice:
+
+```sh
+ELEVENLABS_API_KEY=your-key node scripts/generate-voice.mjs
+```
+
+This records every phrase in `js/voice-phrases.js` with the **Jessica** voice into `audio/voice/` (set `ELEVENLABS_VOICE` to use another voice). Commit the files, bump `CACHE` in `sw.js`, and deploy. "Jessica" then appears first in Settings → Voice and is used by default. Phrases without a clip fall back to the device voice.
+
 ## Run locally
 
 ```sh
