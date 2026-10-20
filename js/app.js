@@ -165,7 +165,7 @@ function openSettings() {
     }));
   }
   body.appendChild(toggleRow('ducking', 'Ducking', 'Reduce music volume during cues'));
-  body.appendChild(toggleRow('countdown', 'Countdown', 'Beep on the last 3 seconds'));
+  body.appendChild(toggleRow('countdown', 'Countdown', 'Beep and count down the last 3 seconds'));
   body.appendChild(toggleRow('ticking', 'Ticking sound'));
   if ('vibrate' in navigator) body.appendChild(toggleRow('vibration', 'Vibration'));
   body.appendChild(toggleRow('flash', 'Screen flash', 'Flash the screen when the phase changes'));

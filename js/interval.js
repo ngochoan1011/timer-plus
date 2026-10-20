@@ -215,8 +215,8 @@ export class IntervalTimer {
   onSecond(seg, rem) {
     if (rem >= 1 && rem <= 3 && seg.dur > 3) {
       if (settings.countdown) {
-        if (settings.sound) sound.play('count');
-        else voice.speak(String(rem));
+        sound.play('count');
+        voice.speak(String(rem));
       }
       vibrate(80);
       return;
