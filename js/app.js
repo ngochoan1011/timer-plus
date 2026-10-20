@@ -1,5 +1,5 @@
 import { settings, setSetting, onSettingsChange, resetSettings, loadJSON, saveJSON } from './settings.js';
-import { sound, voice, clips, ELEVEN_VOICE, SCHEMES, applyAudioSession } from './audio.js';
+import { sound, voice, clips, SCHEMES, applyAudioSession } from './audio.js';
 import { toast, wakeLock } from './effects.js';
 import { ICONS, h, escapeHTML, openSheet } from './ui.js';
 import { IntervalTimer } from './interval.js';
@@ -152,9 +152,10 @@ function openSettings() {
 
   body.appendChild(toggleRow('voice', 'Voice assist', voice.supported ? '' : 'Not supported on this device'));
   const voices = voice.load();
-  if (voices.length || clips.manifest) {
+  const packs = clips.available();
+  if (voices.length || packs.length) {
     const opts = [
-      ...(clips.manifest ? [[ELEVEN_VOICE, clips.name]] : []),
+      ...packs.map((p) => [p.id, p.name]),
       ['', 'Default'],
       ...voices.map((v) => [v.voiceURI, v.name]),
     ];

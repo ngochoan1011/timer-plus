@@ -1,5 +1,7 @@
 {
   "voice": "Jessica",
+  "label": "Jessica (English)",
+  "language": "en",
   "voiceId": "cgSgspJ2msm6clMCkdW9",
   "model": "eleven_v4",
   "clips": {
