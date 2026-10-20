@@ -1,0 +1,16 @@
+{
+  "name": "Timer Plus",
+  "short_name": "Timer Plus",
+  "description": "Tabata, boxing rounds and stopwatch timer for workouts.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#262626",
+  "theme_color": "#262626",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

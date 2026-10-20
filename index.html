@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#262626">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Timer Plus">
+  <meta name="description" content="Tabata, boxing rounds and stopwatch timer for workouts.">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preload" href="fonts/bebas-neue.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/app.css">
+  <title>Timer Plus</title>
+</head>
+<body>
+  <div id="app">
+    <main id="views">
+      <section class="view interval-view active" id="view-tabata" data-mode="tabata"></section>
+      <section class="view interval-view" id="view-rounds" data-mode="rounds"></section>
+      <section class="view" id="view-stopwatch"></section>
+      <section class="view" id="view-more"></section>
+    </main>
+
+    <nav class="tabbar" id="tabbar">
+      <button class="tab active" data-view="tabata">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="18" r="11" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 3v4M13 3h6M24.5 8.5l2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="hand" d="M16 12v6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <span>Tabata</span>
+      </button>
+      <button class="tab" data-view="rounds">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="70 6"/><path class="hand" d="M16 16l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Rounds</span>
+      </button>
+      <button class="tab" data-view="stopwatch">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2"/><circle class="hand" cx="16" cy="16" r="1.6" fill="currentColor"/></svg>
+        <span>Stopwatch</span>
+      </button>
+      <button class="tab" data-view="more">
+        <svg viewBox="0 0 32 32"><path d="M16 4a12 12 0 1 1-8.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>More</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Settings sheet -->
+  <div class="sheet" id="sheet-settings" aria-hidden="true">
+    <div class="sheet-header">
+      <span></span>
+      <h2>Settings</h2>
+      <button class="done-btn" data-close>Done</button>
+    </div>
+    <div class="sheet-body" id="settings-body"></div>
+  </div>
+
+  <!-- Workout editor sheet -->
+  <div class="sheet" id="sheet-editor" aria-hidden="true">
+    <div class="sheet-header">
+      <span></span>
+      <h2 id="editor-title">Edit</h2>
+      <button class="done-btn" data-close>Done</button>
+    </div>
+    <div class="sheet-body" id="editor-body"></div>
+  </div>
+
+  <!-- Info sheet (install help, about) -->
+  <div class="sheet" id="sheet-info" aria-hidden="true">
+    <div class="sheet-header">
+      <span></span>
+      <h2 id="info-title">Info</h2>
+      <button class="done-btn" data-close>Done</button>
+    </div>
+    <div class="sheet-body info-body" id="info-body"></div>
+  </div>
+
+  <div id="flash"></div>
+  <div id="toast" role="status"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
