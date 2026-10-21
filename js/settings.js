@@ -9,6 +9,7 @@ export const DEFAULT_SETTINGS = {
   voice: true,
   voiceURI: 'eleven',
   ducking: true,
+  silentMode: true,
   ticking: false,
   countdown: true,
   bell: 'ends',

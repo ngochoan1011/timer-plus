@@ -35,6 +35,7 @@ class SoundEngine {
   // Must be called from a user gesture (iOS only allows audio after a tap).
   unlock() {
     applyAudioSession();
+    keepPlaybackSession();
     const ctx = this.ensure();
     if (!ctx) return;
     const buf = ctx.createBuffer(1, 1, 22050);
@@ -190,14 +191,32 @@ const PATTERNS = {
 export const sound = new SoundEngine();
 
 // iOS 16.4+ lets web apps choose how audio mixes with other apps.
+// iPhone: "playback" keeps the timer audible when the phone is on silent (other apps' music pauses).
+// Otherwise "transient" mixes with Spotify/Apple Music but the silent switch mutes the timer.
 export function applyAudioSession() {
   try {
     if (navigator.audioSession) {
-      navigator.audioSession.type = settings.ducking ? 'transient' : 'auto';
+      navigator.audioSession.type = settings.silentMode ? 'playback' : 'transient';
     }
   } catch {
     /* unsupported */
   }
+}
+
+// Older iOS (no navigator.audioSession): a looping silent <audio> switches Safari to playback mode,
+// which also un-mutes Web Audio when the phone is on silent.
+let silentEl = null;
+function keepPlaybackSession() {
+  if (navigator.audioSession || !settings.silentMode) {
+    silentEl?.pause();
+    return;
+  }
+  if (!silentEl) {
+    silentEl = new Audio('audio/silence.mp3');
+    silentEl.loop = true;
+    silentEl.playsInline = true;
+  }
+  silentEl.play().catch(() => {});
 }
 
 // ---------- Pre-recorded voice clips (ElevenLabs) ----------

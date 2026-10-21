@@ -6,7 +6,7 @@ import { IntervalTimer } from './interval.js';
 import { Stopwatch } from './stopwatch.js';
 import { music, MUSIC_CHOICES } from './music.js';
 
-export const APP_VERSION = '1.1.0';
+export const APP_VERSION = '1.1.1';
 const UI_KEY = 'timerplus.ui';
 
 // ---------- Views ----------
@@ -58,14 +58,16 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-// Unlock audio on the first touch anywhere (iOS requirement).
-const unlockOnce = () => {
+// Unlock audio on touch. iPhone only counts the end of a tap (touchend/click) as a user gesture,
+// so keep trying on each tap until the audio context is actually running.
+const UNLOCK_EVENTS = ['touchend', 'click', 'keydown'];
+const unlockAudio = () => {
   sound.unlock();
   voice.unlock();
   clips.preload();
-  window.removeEventListener('pointerdown', unlockOnce);
+  if (sound.ctx?.state === 'running') UNLOCK_EVENTS.forEach((ev) => window.removeEventListener(ev, unlockAudio, true));
 };
-window.addEventListener('pointerdown', unlockOnce);
+UNLOCK_EVENTS.forEach((ev) => window.addEventListener(ev, unlockAudio, true));
 
 // ---------- Settings ----------
 function applyTheme() {
@@ -77,7 +79,7 @@ applyAudioSession();
 onSettingsChange((key) => {
   if (key === 'pale' || key === '*') applyTheme();
   if (key === 'volume' || key === '*') sound.applyVolume();
-  if (key === 'ducking' || key === '*') applyAudioSession();
+  if (key === 'silentMode' || key === '*') { applyAudioSession(); sound.unlock(); }
   if (key === 'wakeLock' || key === '*') wakeLock.sync();
   if (key === 'timeFormat' || key === '*') {
     timers.tabata.prev = {};
@@ -167,7 +169,8 @@ function openSettings() {
       voice.speak('Work', { force: true });
     }));
   }
-  body.appendChild(toggleRow('ducking', 'Ducking', 'Lower other apps\' music (Spotify, Apple Music) during cues'));
+  body.appendChild(toggleRow('silentMode', 'Play in silent mode',
+    'On: you hear the timer even with the iPhone on silent (Spotify pauses). Off: mixes with Spotify / Apple Music, but silent mode mutes the timer.'));
   body.appendChild(toggleRow('countdown', 'Countdown 3-2-1', 'Beep and count down the last 3 seconds of every phase'));
   body.appendChild(selectRow('bell', 'Bell', [['ends', 'Start & finish'], ['every', 'Every interval'], ['off', 'Off']], () => {
     sound.unlock();

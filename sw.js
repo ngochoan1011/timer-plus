@@ -1,5 +1,5 @@
 // Offline support: serve app files from cache, refresh them in the background.
-const CACHE = 'timerplus-v8';
+const CACHE = 'timerplus-v9';
 const ASSETS = [
   './',
   'index.html',
@@ -14,6 +14,7 @@ const ASSETS = [
   'js/ui.js',
   'js/music.js',
   'fonts/bebas-neue.woff2',
+  'audio/silence.mp3',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',
   'icons/icon-512.png',
