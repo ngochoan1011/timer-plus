@@ -7,6 +7,9 @@ A workout timer Progressive Web App (PWA) for iPhone: **Tabata**, **Rounds** (bo
 - **Tabata / HIIT** – prepare, work, rest, rounds, cycles and rest between cycles, with presets (20:10, 30:20, 40:20, 45:15, 50:10, EMOM).
 - **Rounds** – round time, rest, number of rounds and a warning before each round ends. Presets for boxing, MMA and Muay Thai.
 - **Stopwatch** – laps, with the fastest and slowest lap highlighted.
+- **Cool down** – between cycles and/or at the end of the workout.
+- **Bell** – boxing bell at start & finish (or every interval), plus loud 3-2-1 countdown beeps with the voice counting along.
+- **Background music** – quiet built-in beats (Energy / Chill) or your own music file; it dips under the voice cues.
 - **Sounds** – boxing gong, beep, whistle and digital schemes (generated in the browser, no audio files), volume, 3-2-1 countdown, ticking.
 - **Voice assist** – spoken phases ("Work", "Rest", "Round 3", "Halfway", "Last round") using the device's voices.
 - Screen flash, keep screen on, pale colors, time format (00:00, 0:00, seconds), landscape layout.

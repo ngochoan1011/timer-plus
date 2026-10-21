@@ -4,8 +4,9 @@ import { toast, wakeLock } from './effects.js';
 import { ICONS, h, escapeHTML, openSheet } from './ui.js';
 import { IntervalTimer } from './interval.js';
 import { Stopwatch } from './stopwatch.js';
+import { music, MUSIC_CHOICES } from './music.js';
 
-export const APP_VERSION = '1.0.0';
+export const APP_VERSION = '1.1.0';
 const UI_KEY = 'timerplus.ui';
 
 // ---------- Views ----------
@@ -41,6 +42,7 @@ function renderActive() {
 function frame() {
   timers.tabata.tick();
   timers.rounds.tick();
+  music.update(timers.tabata.state.status === 'running' || timers.rounds.state.status === 'running');
   renderActive();
   requestAnimationFrame(frame);
 }
@@ -165,8 +167,59 @@ function openSettings() {
       voice.speak('Work', { force: true });
     }));
   }
-  body.appendChild(toggleRow('ducking', 'Ducking', 'Reduce music volume during cues'));
-  body.appendChild(toggleRow('countdown', 'Countdown', 'Beep and count down the last 3 seconds'));
+  body.appendChild(toggleRow('ducking', 'Ducking', 'Lower other apps\' music (Spotify, Apple Music) during cues'));
+  body.appendChild(toggleRow('countdown', 'Countdown 3-2-1', 'Beep and count down the last 3 seconds of every phase'));
+  body.appendChild(selectRow('bell', 'Bell', [['ends', 'Start & finish'], ['every', 'Every interval'], ['off', 'Off']], () => {
+    sound.unlock();
+    sound.ring(1);
+  }));
+
+  // Background music
+  const fileInput = h('<input type="file" accept="audio/*" hidden>');
+  const fileRow = h(`
+    <div class="row">
+      <div class="row-text">
+        <div class="row-label">Music file</div>
+        <div class="row-note" data-name></div>
+      </div>
+      <button class="chip">Choose…</button>
+    </div>`);
+  const showName = () => {
+    fileRow.querySelector('[data-name]').textContent = music.fileName || 'No file chosen';
+    fileRow.style.display = settings.music === 'file' ? '' : 'none';
+  };
+  fileRow.querySelector('button').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', async () => {
+    const f = fileInput.files[0];
+    if (!f) return;
+    try {
+      await music.saveFile(f);
+      toast('Music saved');
+      music.preview();
+    } catch {
+      toast('Could not save that file');
+    }
+    showName();
+  });
+  body.appendChild(selectRow('music', 'Background music', Object.entries(MUSIC_CHOICES), (v) => {
+    showName();
+    if (v === 'file' && !music.fileName) fileInput.click();
+    else music.preview();
+  }));
+  body.appendChild(fileRow);
+  body.appendChild(fileInput);
+  showName();
+  const mvol = h(`
+    <div class="row volume-row">
+      <div class="row-text" style="flex:0 0 auto"><div class="row-note">Music</div></div>
+      <input type="range" min="0" max="1" step="0.01" aria-label="Music volume">
+    </div>`);
+  const mrange = mvol.querySelector('input');
+  mrange.value = settings.musicVolume;
+  mrange.addEventListener('input', () => setSetting('musicVolume', parseFloat(mrange.value)));
+  mrange.addEventListener('change', () => music.preview(4));
+  body.appendChild(mvol);
+  body.appendChild(h('<div class="row-note" style="padding:10px 0 4px">Music plays quietly while a timer runs and dips under the voice. You can also play Spotify or Apple Music alongside the timer.</div>'));
   body.appendChild(toggleRow('ticking', 'Ticking sound'));
   if ('vibrate' in navigator) body.appendChild(toggleRow('vibration', 'Vibration'));
   body.appendChild(toggleRow('flash', 'Screen flash', 'Flash the screen when the phase changes'));

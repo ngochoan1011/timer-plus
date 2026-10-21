@@ -7,14 +7,15 @@ import { ICONS, h, escapeHTML, openSheet, holdRepeat, fitFactor } from './ui.js'
 const MODES = {
   tabata: {
     title: 'Tabata',
-    defaults: { prepare: 20, work: 30, rest: 20, rounds: 15, cycles: 2, cycleRest: 60 },
+    defaults: { prepare: 20, work: 30, rest: 20, rounds: 15, cycles: 2, cycleRest: 60, cooldown: 0 },
     fields: [
       { key: 'prepare', label: 'Prepare', type: 'time', min: 0, max: 600, phase: 'prepare' },
       { key: 'work', label: 'Work', type: 'time', min: 1, max: 3600, phase: 'work' },
       { key: 'rest', label: 'Rest', type: 'time', min: 0, max: 3600, phase: 'rest' },
       { key: 'rounds', label: 'Rounds', type: 'count', min: 1, max: 99 },
       { key: 'cycles', label: 'Cycles', type: 'count', min: 1, max: 30 },
-      { key: 'cycleRest', label: 'Rest between cycles', type: 'time', min: 0, max: 3600, phase: 'cyclerest' },
+      { key: 'cycleRest', label: 'Cool down between cycles', type: 'time', min: 0, max: 3600, phase: 'cyclerest' },
+      { key: 'cooldown', label: 'Cool down at the end', type: 'time', min: 0, max: 1800, phase: 'cooldown' },
     ],
     presets: [
       { name: '20:10 × 8', work: 20, rest: 10, rounds: 8, cycles: 1 },
@@ -28,13 +29,14 @@ const MODES = {
   },
   rounds: {
     title: 'Rounds',
-    defaults: { prepare: 10, round: 180, rest: 60, rounds: 12, warn: 10 },
+    defaults: { prepare: 10, round: 180, rest: 60, rounds: 12, warn: 10, cooldown: 0 },
     fields: [
       { key: 'prepare', label: 'Prepare', type: 'time', min: 0, max: 600, phase: 'prepare' },
       { key: 'round', label: 'Round time', type: 'time', min: 5, max: 3600, phase: 'work' },
       { key: 'rest', label: 'Rest', type: 'time', min: 0, max: 3600, phase: 'rest' },
       { key: 'rounds', label: 'Rounds', type: 'count', min: 1, max: 99 },
       { key: 'warn', label: 'Round end warning', type: 'time', min: 0, max: 60, note: 'Clap & voice before the round ends' },
+      { key: 'cooldown', label: 'Cool down at the end', type: 'time', min: 0, max: 1800, phase: 'cooldown' },
     ],
     presets: [
       { name: 'Boxing pro', round: 180, rest: 60, rounds: 12 },
@@ -48,7 +50,7 @@ const MODES = {
   },
 };
 
-const PHASE_VOICE = { prepare: 'Get ready', work: 'Work', rest: 'Rest', cyclerest: 'Rest' };
+const PHASE_VOICE = { prepare: 'Get ready', work: 'Work', rest: 'Rest', cyclerest: 'Cycle complete. Cool down', cooldown: 'Cool down' };
 
 function buildSegments(mode, c) {
   const segs = [];
@@ -60,7 +62,7 @@ function buildSegments(mode, c) {
         const lastRound = r === c.rounds;
         if (lastRound && cy === c.cycles) break;
         if (lastRound && c.cycleRest > 0) {
-          segs.push({ type: 'cyclerest', label: 'Cycle rest', dur: c.cycleRest, round: r, cycle: cy, after: true });
+          segs.push({ type: 'cyclerest', label: 'Cool down', dur: c.cycleRest, round: r, cycle: cy, after: true });
         } else if (c.rest > 0) {
           segs.push({ type: 'rest', label: 'Rest', dur: c.rest, round: r, cycle: cy, after: true });
         }
@@ -71,6 +73,10 @@ function buildSegments(mode, c) {
       segs.push({ type: 'work', label: `Round ${r}`, dur: c.round, round: r, cycle: 1 });
       if (r < c.rounds && c.rest > 0) segs.push({ type: 'rest', label: 'Rest', dur: c.rest, round: r, cycle: 1, after: true });
     }
+  }
+  if (c.cooldown > 0) {
+    const last = segs[segs.length - 1] || { round: 0, cycle: 1 };
+    segs.push({ type: 'cooldown', label: 'Cool down', dur: c.cooldown, round: last.round, cycle: last.cycle, after: true, final: true });
   }
   let t = 0;
   for (const s of segs) {
@@ -148,7 +154,9 @@ export class IntervalTimer {
         const pos = this.locate(0);
         this.lastIndex = pos.index;
         this.lastRem = pos.rem;
-        if (pos.seg) this.onSegmentStart(pos.seg);
+        const rang = settings.bell !== 'off';
+        if (rang) sound.ring(1);
+        if (pos.seg) this.onSegmentStart(pos.seg, { quiet: rang });
       }
     }
     this.saveState();
@@ -173,7 +181,8 @@ export class IntervalTimer {
       this.state.accMs = this.totalSec * 1000;
       this.saveState();
       wakeLock.set(this, false);
-      sound.play('finish');
+      if (settings.bell !== 'off') sound.ring(3);
+      else sound.play('finish');
       voice.speak('Workout complete. Great job!');
       vibrate([300, 150, 300, 150, 600]);
       flashScreen();
@@ -193,17 +202,23 @@ export class IntervalTimer {
     }
   }
 
-  onSegmentStart(seg) {
-    if (seg.type === 'work') sound.play('start');
-    else if (seg.type === 'rest' || seg.type === 'cyclerest') sound.play('rest');
+  onSegmentStart(seg, { quiet = false } = {}) {
+    const isRest = seg.type === 'rest' || seg.type === 'cyclerest' || seg.type === 'cooldown';
+    if (quiet || seg.type === 'prepare') {
+      // the start bell already rang
+    } else if (settings.bell === 'every') {
+      sound.ring(seg.type === 'work' ? 1 : 2);
+    } else if (seg.type === 'work') {
+      sound.play('start');
+    } else if (isRest) {
+      sound.play('rest');
+    }
     let text = PHASE_VOICE[seg.type];
     if (this.mode === 'rounds' && seg.type === 'work') {
       text = seg.round === this.cfg.rounds && this.cfg.rounds > 1 ? 'Last round' : `Round ${seg.round}`;
     } else if (this.mode === 'tabata' && seg.type === 'work') {
       const isLast = seg.round === this.cfg.rounds && seg.cycle === this.cfg.cycles && this.cfg.rounds * this.cfg.cycles > 1;
       if (isLast) text = 'Last round. Work';
-    } else if (seg.type === 'cyclerest') {
-      text = 'Cycle complete. Rest';
     }
     voice.speak(text);
     if (seg.type !== 'prepare') {
@@ -215,7 +230,7 @@ export class IntervalTimer {
   onSecond(seg, rem) {
     if (rem >= 1 && rem <= 3 && seg.dur > 3) {
       if (settings.countdown) {
-        sound.play('count');
+        sound.countdown(rem);
         voice.speak(String(rem));
       }
       vibrate(80);
@@ -293,6 +308,13 @@ export class IntervalTimer {
     else if (prop === 'html') el.innerHTML = value;
     else if (prop === 'phase') el.dataset.phase = value;
     else if (prop === 'fit') el.style.setProperty('--fit', value);
+    else if (prop === 'lfit') el.style.setProperty('--lfit', value);
+  }
+
+  // Phase names like "Cool down" or "Round 30" shrink to fit like the times do.
+  setLabel(key, text) {
+    this.set(key, 'text', text);
+    this.set(key, 'lfit', fitFactor(text, 7));
   }
 
   setTime(key, text) {
@@ -313,12 +335,12 @@ export class IntervalTimer {
     let cyclesLeft;
     if (pos.done) {
       this.set('cur', 'phase', 'done');
-      this.set('curLabel', 'text', 'Well done');
+      this.setLabel('curLabel', 'Well done');
       this.setTime('curTime', formatTime(0));
       this.set('curInfo', 'text', '');
       this.els.progress.style.width = '100%';
       this.set('next', 'phase', 'none');
-      this.set('nextLabel', 'text', 'Total time');
+      this.setLabel('nextLabel', 'Total time');
       this.setTime('nextTime', formatTime(this.totalSec));
       roundsLeft = 0;
       cyclesLeft = 0;
@@ -326,7 +348,7 @@ export class IntervalTimer {
       const seg = pos.seg;
       const rem = st === 'idle' ? seg.dur : pos.rem;
       this.set('cur', 'phase', seg.type);
-      this.set('curLabel', 'text', seg.label);
+      this.setLabel('curLabel', seg.label);
       this.setTime('curTime', formatTime(rem));
       let info = '';
       if (isTabata && seg.type === 'work' && c.cycles > 1) info = `Cycle ${seg.cycle} of ${c.cycles}`;
@@ -338,11 +360,11 @@ export class IntervalTimer {
       const nextSeg = this.segs[pos.index + 1];
       if (nextSeg) {
         this.set('next', 'phase', nextSeg.type);
-        this.set('nextLabel', 'text', nextSeg.label);
+        this.setLabel('nextLabel', nextSeg.label);
         this.setTime('nextTime', formatTime(nextSeg.dur));
       } else {
         this.set('next', 'phase', 'none');
-        this.set('nextLabel', 'text', 'Finish');
+        this.setLabel('nextLabel', 'Finish');
         this.setTime('nextTime', formatTime(0));
       }
 
@@ -351,6 +373,7 @@ export class IntervalTimer {
       else roundsLeft = seg.after ? rounds - seg.round : rounds - seg.round + 1;
       if (seg.type === 'cyclerest') roundsLeft = rounds;
       cyclesLeft = seg.type === 'cyclerest' ? c.cycles - seg.cycle : c.cycles - seg.cycle + 1;
+      if (seg.type === 'cooldown') { roundsLeft = 0; cyclesLeft = 0; }
     }
 
     this.set('leftVal', 'text', String(roundsLeft));

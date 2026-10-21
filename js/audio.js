@@ -1,6 +1,10 @@
 // Sound effects (synthesised with Web Audio, no audio files needed) and voice prompts.
 import { settings } from './settings.js';
 
+// Called with a duration (s) whenever a cue plays, so background music can dip under it.
+let onCue = null;
+export function setCueListener(fn) { onCue = fn; }
+
 export const SCHEMES = {
   gong: 'Boxing gong',
   beep: 'Beep',
@@ -117,6 +121,30 @@ class SoundEngine {
     const t = ctx.currentTime + 0.02;
     const fn = PATTERNS[scheme]?.[cue];
     if (fn) fn(this, t);
+    if (fn) onCue?.(1.2);
+  }
+
+  // Boxing-ring bell, n quick strikes. Plays even when the sound scheme is muted.
+  ring(n = 1) {
+    if (settings.bell === 'off') return;
+    const ctx = this.ensure();
+    if (!ctx) return;
+    const t = ctx.currentTime + 0.02;
+    for (let i = 0; i < n; i++) this.bell(t + i * 0.3, 720, i === n - 1 ? 2.4 : 1.1, 0.5);
+    onCue?.(1.2 + n * 0.3);
+  }
+
+  // Loud "race start" beeps for the last 3 seconds: 3, 2, 1.
+  countdown(n) {
+    const ctx = this.ensure();
+    if (!ctx) return;
+    const t = ctx.currentTime + 0.02;
+    const f = n === 1 ? 988 : 784;
+    // Softer when the voice also counts, so the spoken "3, 2, 1" stays clear.
+    const g = settings.voice ? 0.28 : 0.6;
+    this.tone(f, t, 0.22, { type: 'triangle', gain: g, sustain: true });
+    this.tone(f * 2, t, 0.22, { gain: g / 4, sustain: true });
+    onCue?.(0.4);
   }
 
   tick() {
@@ -227,6 +255,7 @@ class ClipPack {
     g.connect(ctx.destination);
     src.start();
     currentSource = src;
+    onCue?.(buf.duration + 0.3);
     return true;
   }
 }

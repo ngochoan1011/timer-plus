@@ -11,6 +11,8 @@ export const VOICE_PHRASES = [
   'Last round',
   'Last round. Work',
   'Cycle complete. Rest',
+  'Cool down',
+  'Cycle complete. Cool down',
   'Workout complete. Great job!',
   '1', '2', '3',
   ...rounds,

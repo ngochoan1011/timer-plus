@@ -1,5 +1,5 @@
 // Offline support: serve app files from cache, refresh them in the background.
-const CACHE = 'timerplus-v6';
+const CACHE = 'timerplus-v7';
 const ASSETS = [
   './',
   'index.html',
@@ -12,6 +12,7 @@ const ASSETS = [
   'js/settings.js',
   'js/stopwatch.js',
   'js/ui.js',
+  'js/music.js',
   'fonts/bebas-neue.woff2',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',
@@ -25,7 +26,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('timerplus-v') && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
