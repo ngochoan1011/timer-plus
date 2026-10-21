@@ -123,14 +123,14 @@ svg { display: block; }
 .topbar {
   position: relative;
   display: grid;
-  grid-template-columns: 64px 1fr 64px;
+  grid-template-columns: 104px 1fr 104px;
   align-items: center;
   min-height: 92px;
   padding: 4px 8px;
   background: var(--bg);
   z-index: 2;
 }
-.topbar.simple { min-height: 70px; border-bottom: 1px solid var(--line); }
+.topbar.simple { min-height: 70px; border-bottom: 1px solid var(--line); grid-template-columns: 64px 1fr 64px; }
 .topbar h1 {
   grid-column: 2;
   margin: 0;
@@ -147,6 +147,10 @@ svg { display: block; }
   justify-self: center;
 }
 .icon-btn svg { width: 32px; height: 32px; }
+.topbar-side { display: flex; align-items: center; gap: 4px; }
+.topbar-side.right { justify-content: flex-end; }
+.music-btn[data-phase="off"] { color: #8a8a8a; }
+.music-btn svg { width: 28px; height: 28px; }
 .title-block {
   text-align: center;
   color: var(--yellow);

@@ -14,6 +14,7 @@ export const DEFAULT_SETTINGS = {
   bell: 'ends',
   music: 'energy',
   musicVolume: 0.5,
+  lastMusic: 'energy',
   vibration: false,
   flash: false,
   wakeLock: true,

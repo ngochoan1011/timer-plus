@@ -1,7 +1,7 @@
 // Interval timer engine + view, used for both the Tabata and Rounds tabs.
-import { settings, loadJSON, saveJSON, formatTime, formatDuration } from './settings.js';
+import { settings, setSetting, loadJSON, saveJSON, formatTime, formatDuration } from './settings.js';
 import { sound, voice } from './audio.js';
-import { vibrate, flashScreen, wakeLock } from './effects.js';
+import { vibrate, flashScreen, wakeLock, toast } from './effects.js';
 import { ICONS, h, escapeHTML, openSheet, holdRepeat, fitFactor } from './ui.js';
 
 const MODES = {
@@ -247,18 +247,36 @@ export class IntervalTimer {
     sound.tick();
   }
 
+  // Music on/off from the workout screen; remembers which music was last used.
+  toggleMusic() {
+    if (settings.music === 'off') {
+      setSetting('music', settings.lastMusic || 'energy');
+      toast('Music on');
+    } else {
+      setSetting('lastMusic', settings.music);
+      setSetting('music', 'off');
+      toast('Music off');
+    }
+    this.render();
+  }
+
   // ---------- view ----------
   mount() {
     const root = this.root;
     const isTabata = this.mode === 'tabata';
     root.innerHTML = `
       <header class="topbar">
-        <button class="icon-btn" data-act="settings" aria-label="Settings">${ICONS.gear}</button>
+        <div class="topbar-side">
+          <button class="icon-btn" data-act="settings" aria-label="Settings">${ICONS.gear}</button>
+          <button class="icon-btn music-btn" data-act="music" data-el="musicBtn" aria-label="Background music"></button>
+        </div>
         <button class="title-block" data-act="edit" aria-label="Edit workout">
           <div class="title">${this.def.title}</div>
           <div class="subtitle" data-el="subtitle"></div>
         </button>
-        <button class="icon-btn" data-act="edit" aria-label="Edit workout">${ICONS.sliders}</button>
+        <div class="topbar-side right">
+          <button class="icon-btn" data-act="edit" aria-label="Edit workout">${ICONS.sliders}</button>
+        </div>
       </header>
       <div class="stage">
         <button class="reset-btn" data-act="reset" aria-label="Reset">${ICONS.restart}</button>
@@ -295,6 +313,7 @@ export class IntervalTimer {
       else if (act === 'reset') this.reset();
       else if (act === 'edit') this.openEditor();
       else if (act === 'settings') this.onOpenSettings?.();
+      else if (act === 'music') this.toggleMusic();
     });
     this.prev = {};
   }
@@ -330,6 +349,9 @@ export class IntervalTimer {
     const isTabata = this.mode === 'tabata';
 
     this.set('subtitle', 'text', this.def.subtitle(c));
+    const musicOn = settings.music !== 'off';
+    this.set('musicBtn', 'html', musicOn ? ICONS.music : ICONS.musicOff);
+    this.set('musicBtn', 'phase', musicOn ? 'on' : 'off');
 
     let roundsLeft;
     let cyclesLeft;
