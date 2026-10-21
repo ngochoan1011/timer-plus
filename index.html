@@ -7,14 +7,14 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Timer Plus">
+  <meta name="apple-mobile-web-app-title" content="Hoan Timer Plus">
   <meta name="description" content="Tabata, boxing rounds and stopwatch timer for workouts.">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="preload" href="fonts/bebas-neue.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/app.css">
-  <title>Timer Plus</title>
+  <title>Hoan Timer Plus</title>
 </head>
 <body>
   <div id="app">
@@ -22,7 +22,6 @@
       <section class="view interval-view active" id="view-tabata" data-mode="tabata"></section>
       <section class="view interval-view" id="view-rounds" data-mode="rounds"></section>
       <section class="view" id="view-stopwatch"></section>
-      <section class="view" id="view-more"></section>
     </main>
 
     <nav class="tabbar" id="tabbar">
@@ -37,10 +36,6 @@
       <button class="tab" data-view="stopwatch">
         <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2"/><circle class="hand" cx="16" cy="16" r="1.6" fill="currentColor"/></svg>
         <span>Stopwatch</span>
-      </button>
-      <button class="tab" data-view="more">
-        <svg viewBox="0 0 32 32"><path d="M16 4a12 12 0 1 1-8.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        <span>More</span>
       </button>
     </nav>
   </div>
@@ -63,16 +58,6 @@
       <button class="done-btn" data-close>Done</button>
     </div>
     <div class="sheet-body" id="editor-body"></div>
-  </div>
-
-  <!-- Info sheet (install help, about) -->
-  <div class="sheet" id="sheet-info" aria-hidden="true">
-    <div class="sheet-header">
-      <span></span>
-      <h2 id="info-title">Info</h2>
-      <button class="done-btn" data-close>Done</button>
-    </div>
-    <div class="sheet-body info-body" id="info-body"></div>
   </div>
 
   <div id="flash"></div>

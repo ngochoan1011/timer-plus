@@ -1,4 +1,4 @@
-# Timer Plus
+# Hoan Timer Plus
 
 A workout timer Progressive Web App (PWA) for iPhone: **Tabata**, **Rounds** (boxing/MMA) and **Stopwatch**. Plain HTML/CSS/JS, no build step, works offline once installed.
 

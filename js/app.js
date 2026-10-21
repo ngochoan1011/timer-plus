@@ -1,12 +1,12 @@
 import { settings, setSetting, onSettingsChange, resetSettings, loadJSON, saveJSON } from './settings.js';
 import { sound, voice, clips, SCHEMES, applyAudioSession } from './audio.js';
 import { toast, wakeLock } from './effects.js';
-import { ICONS, h, escapeHTML, openSheet } from './ui.js';
+import { ICONS, h, openSheet } from './ui.js';
 import { IntervalTimer } from './interval.js';
 import { Stopwatch } from './stopwatch.js';
 import { music, MUSIC_CHOICES } from './music.js';
 
-export const APP_VERSION = '1.1.1';
+export const APP_VERSION = '1.2.0';
 const UI_KEY = 'timerplus.ui';
 
 // ---------- Views ----------
@@ -239,78 +239,24 @@ function openSettings() {
     voice.speak('Work', { force: true });
   });
   body.appendChild(test);
+  const resetAll = h('<button class="wide-btn danger">Reset all data</button>');
+  resetAll.addEventListener('click', () => {
+    if (!window.confirm('Reset all settings, workouts and the stopwatch?')) return;
+    Object.keys(localStorage).filter((k) => k.startsWith('timerplus.')).forEach((k) => localStorage.removeItem(k));
+    resetSettings();
+    location.reload();
+  });
+  body.appendChild(resetAll);
   body.appendChild(h(`<div class="version">Version: ${APP_VERSION}</div>`));
 
   openSheet('sheet-settings');
 }
 
-// ---------- More ----------
-function moreItem(icon, color, label, onClick) {
-  const li = h(`<li><button class="list-item"><span class="ico" style="color:${color}">${icon}</span><span class="label">${escapeHTML(label)}</span><span class="chev">${ICONS.chevron}</span></button></li>`);
-  li.querySelector('button').addEventListener('click', onClick);
-  return li;
-}
+const VIEWS = ['tabata', 'rounds', 'stopwatch'];
+showView(VIEWS.includes(activeView) ? activeView : 'tabata');
 
-function openInfo(title, html) {
-  document.getElementById('info-title').textContent = title;
-  document.getElementById('info-body').innerHTML = html;
-  openSheet('sheet-info');
-}
-
-function mountMore() {
-  const root = document.getElementById('view-more');
-  root.innerHTML = '<header class="topbar simple"><h1>More</h1></header>';
-  const list = h('<ul class="list"></ul>');
-  list.appendChild(moreItem(ICONS.phone, 'var(--green)', 'Install on iPhone', () => openInfo('Install', INSTALL_HTML)));
-  list.appendChild(moreItem(ICONS.gear, 'var(--yellow)', 'Settings', openSettings));
-  list.appendChild(moreItem(ICONS.share, 'var(--blue)', 'Share app', async () => {
-    const data = { title: 'Timer Plus', text: 'Tabata, rounds & stopwatch timer', url: location.href.split('#')[0] };
-    try {
-      if (navigator.share) await navigator.share(data);
-      else {
-        await navigator.clipboard.writeText(data.url);
-        toast('Link copied');
-      }
-    } catch { /* cancelled */ }
-  }));
-  list.appendChild(moreItem(ICONS.info, '#fff', 'About & tips', () => openInfo('About', ABOUT_HTML)));
-  list.appendChild(moreItem(ICONS.trash, 'var(--red)', 'Reset all data', () => {
-    if (!window.confirm('Reset all settings, workouts and the stopwatch?')) return;
-    Object.keys(localStorage).filter((k) => k.startsWith('timerplus.')).forEach((k) => localStorage.removeItem(k));
-    resetSettings();
-    location.reload();
-  }));
-  root.appendChild(list);
-  root.appendChild(h(`<div class="more-footer">Version ${APP_VERSION}</div>`));
-}
-
-const INSTALL_HTML = `
-  <h3>Add to Home Screen</h3>
-  <ol>
-    <li>Open this page in <b>Safari</b> on your iPhone.</li>
-    <li>Tap the <b>Share</b> button (square with an arrow).</li>
-    <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
-    <li>Launch <b>Timer Plus</b> from your Home Screen. It runs full screen and works offline.</li>
-  </ol>
-  <h3>Sound on iPhone</h3>
-  <ul>
-    <li>Tap anywhere once after opening the app so iOS allows sound.</li>
-    <li>If you hear nothing, check the volume and the silent switch.</li>
-  </ul>`;
-
-const ABOUT_HTML = `
-  <h3>Timer Plus</h3>
-  <p>An interval timer for Tabata, HIIT, boxing and general workouts. Everything is stored on your device.</p>
-  <h3>Tips</h3>
-  <ul>
-    <li>Tap the title or the colored panels to edit the workout.</li>
-    <li>The circular arrow button resets the timer.</li>
-    <li>Keep the app open during a workout: iPhone pauses web apps in the background or when the screen is locked. The timer catches up when you come back, but cues are skipped while it's paused.</li>
-    <li>Turn on <b>Keep screen on</b> in Settings to stop the screen from sleeping.</li>
-  </ul>`;
-
-mountMore();
-showView(timers[activeView] || activeView === 'stopwatch' || activeView === 'more' ? activeView : 'tabata');
+// Ask the browser to keep this app's saved data (settings, workouts) instead of clearing it under storage pressure.
+navigator.storage?.persist?.().catch(() => {});
 
 // ---------- Service worker ----------
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {

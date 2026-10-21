@@ -394,38 +394,6 @@ svg { display: block; }
   padding: 14px 10px 12px;
 }
 
-/* ---------- More ---------- */
-.list {
-  list-style: none;
-  margin: 0;
-  padding: 0 18px;
-  overflow-y: auto;
-  flex: 1;
-}
-.list li { border-bottom: 1px solid var(--line); }
-.list-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 2px;
-  font-size: 28px;
-  text-align: left;
-}
-.list-item .ico {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: #2f2f2f;
-  display: grid;
-  place-items: center;
-  flex: 0 0 46px;
-}
-.list-item .ico svg { width: 26px; height: 26px; }
-.list-item .label { flex: 1; }
-.list-item .chev { color: #8a8a8a; width: 16px; height: 26px; }
-.more-footer { text-align: center; color: var(--yellow); font-size: 22px; padding: 20px; }
-
 /* ---------- Sheets ---------- */
 .sheet {
   position: fixed;
@@ -556,6 +524,7 @@ input[type="range"]::-moz-range-thumb {
   background: var(--accent);
 }
 
+.wide-btn.danger { color: var(--red); }
 .version { text-align: center; color: var(--yellow); font-size: 22px; padding-top: 20px; }
 
 /* Editor */
@@ -607,11 +576,6 @@ input[type="range"]::-moz-range-thumb {
   font-size: 24px;
 }
 
-.info-body { font-family: -apple-system, system-ui, sans-serif; text-transform: none; font-size: 17px; line-height: 1.5; color: #ddd; -webkit-user-select: text; user-select: text; }
-.info-body h3 { font-family: "Bebas Neue", sans-serif; text-transform: uppercase; font-weight: 400; font-size: 28px; color: #fff; margin: 24px 0 6px; letter-spacing: 0.02em; }
-.info-body ol, .info-body ul { padding-left: 22px; }
-.info-body li { margin: 6px 0; }
-.info-body b { color: #fff; }
 
 /* Flash & toast */
 #flash {

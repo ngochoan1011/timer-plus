@@ -493,6 +493,7 @@ export class IntervalTimer {
         valueEls[f.key].textContent = f.type === 'time' ? formatDuration(v) : String(v);
       });
       this.rebuild();
+      saveJSON(this.cfgKey, this.cfg); // save right away so closing the app mid-edit keeps changes
       total.textContent = `Total ${formatTime(this.totalSec, 'm:ss')}`;
       drawPresets();
     };
