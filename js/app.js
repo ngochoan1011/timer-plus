@@ -6,7 +6,7 @@ import { IntervalTimer } from './interval.js';
 import { Stopwatch } from './stopwatch.js';
 import { music, MUSIC_CHOICES } from './music.js';
 
-export const APP_VERSION = '1.2.0';
+export const APP_VERSION = '1.2.1';
 const UI_KEY = 'timerplus.ui';
 
 // ---------- Views ----------
@@ -75,6 +75,8 @@ function applyTheme() {
 }
 applyTheme();
 applyAudioSession();
+// Start downloading the chosen voice right away so the first cue ("Get ready") is ready in time.
+clips.preload();
 
 onSettingsChange((key) => {
   if (key === 'pale' || key === '*') applyTheme();

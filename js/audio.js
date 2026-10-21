@@ -244,6 +244,11 @@ class ClipPack {
 
   get name() { return this.manifest?.label || this.manifest?.voice || 'ElevenLabs'; }
 
+  has(text) {
+    const key = String(text).toLowerCase();
+    return Object.keys(this.manifest?.clips || {}).some((k) => k.toLowerCase() === key);
+  }
+
   // Fetch and decode every clip once audio is unlocked.
   preload() {
     if (this.preloading) return this.preloading;
@@ -322,7 +327,23 @@ export const voice = {
     if (pack) {
       if (synth) synth.cancel();
       if (pack.play(text)) return;
+      // Clip not decoded yet (e.g. "Get ready" right after opening the app): wait for it
+      // rather than switching to the phone's own voice. Drop it if it would arrive too late.
+      if (!pack.manifest || pack.has(text)) {
+        const asked = Date.now();
+        pack.ready
+          .then(() => (pack.has(text) ? pack.preload() : null))
+          .then(() => {
+            if (!pack.has(text)) this.speakDevice(text);
+            else if (Date.now() - asked < 3000) pack.play(text);
+          });
+        return;
+      }
     }
+    this.speakDevice(text);
+  },
+
+  speakDevice(text) {
     if (!synth) return;
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);

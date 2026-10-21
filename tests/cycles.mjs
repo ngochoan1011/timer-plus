@@ -3,7 +3,7 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PW || 'playwright');
-const BASE = process.env.BASE_URL || BASE;
+const BASE = process.env.BASE_URL || 'http://localhost:8123/';
 const b = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
 let fails = 0; const ok = (c, msg) => { if (!c) { fails++; console.log('FAIL', msg); } };
 
